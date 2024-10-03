@@ -1,5 +1,7 @@
 package hhplus.tdd.LectureApplication;
 
+import hhplus.tdd.LectureApplication.exception.CapacityExceededException;
+import hhplus.tdd.LectureApplication.exception.DuplicateApplicationException;
 import hhplus.tdd.LectureApplication.service.LectureService;
 import hhplus.tdd.LectureApplication.dto.ApplicationDTO;
 import hhplus.tdd.LectureApplication.dto.LectureDTO;
@@ -97,10 +99,36 @@ public class LectureServiceTest {
 			when(lectureRepositoryJPA.findByIdWithLock(lectureId)).thenReturn(Optional.of(lecture));
 
 			// When & Then
-			IllegalStateException exception = assertThrows(IllegalStateException.class, () -> {
+			CapacityExceededException exception = assertThrows(CapacityExceededException.class, () -> {
 				lectureService.applyLecture(lectureId, studentId);
 			});
 			assertEquals("정원을 초과할 수 없습니다.", exception.getMessage());
+		}
+
+		@Test
+		@DisplayName("중복 신청한 경우 수강신청에 실패한다")
+		public void applyLectureFailsDuplicateApplication() {
+			//Given
+			Long lectureId = 1L;
+			Long studentId = 100L;
+			Lecture lecture = new Lecture();
+			lecture.setId(lectureId);
+			lecture.setCurrent(0L);
+			lecture.setCapacity(10L);
+
+			Application application = new Application();
+			application.setStudentId(studentId);
+			application.setLecture(lecture);
+
+			//when
+			when(lectureRepositoryJPA.findByIdWithLock(lectureId)).thenReturn(Optional.of(lecture));
+			when(applicationRepositoryJPA.findByStudentIdAndLectureId(studentId, lectureId)).thenReturn(Optional.of(application));
+
+			//then
+			DuplicateApplicationException duplicateApplicationException = assertThrows(DuplicateApplicationException.class, () -> {
+				lectureService.applyLecture(lectureId, studentId);
+			});
+			assertEquals("이미 신청한 강의입니다.", duplicateApplicationException.getMessage());
 		}
 	}
 
