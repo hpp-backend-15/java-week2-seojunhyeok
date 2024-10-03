@@ -17,6 +17,4 @@ public class Application {
 	@ManyToOne
 	@JoinColumn(name = "lecture_id")
 	private Lecture lecture;
-
-	public Application(Long id, Long studentId, Lecture lecture) {}
 }

@@ -55,7 +55,7 @@ public class LectureServiceTest {
 			lecture.setCurrent(5L);
 			lecture.setCapacity(10L);
 
-			when(lectureRepositoryJPA.findById(lectureId)).thenReturn(Optional.of(lecture));
+			when(lectureRepositoryJPA.findByIdWithLock(lectureId)).thenReturn(Optional.of(lecture));
 			when(applicationRepositoryJPA.save(any(Application.class))).thenReturn(new Application());
 
 			// When
@@ -74,7 +74,7 @@ public class LectureServiceTest {
 			Long invalidLectureId = 999L;
 			Long studentId = 100L;
 
-			when(lectureRepositoryJPA.findById(invalidLectureId)).thenReturn(Optional.empty());
+			when(lectureRepositoryJPA.findByIdWithLock(invalidLectureId)).thenReturn(Optional.empty());
 
 			// When & Then
 			RuntimeException exception = assertThrows(RuntimeException.class, () -> {
@@ -94,7 +94,7 @@ public class LectureServiceTest {
 			lecture.setCurrent(10L); // 현재 인원이 최대 인원과 같음
 			lecture.setCapacity(10L);
 
-			when(lectureRepositoryJPA.findById(lectureId)).thenReturn(Optional.of(lecture));
+			when(lectureRepositoryJPA.findByIdWithLock(lectureId)).thenReturn(Optional.of(lecture));
 
 			// When & Then
 			IllegalStateException exception = assertThrows(IllegalStateException.class, () -> {

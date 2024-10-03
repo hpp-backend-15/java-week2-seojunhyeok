@@ -24,8 +24,8 @@ public class LectureService {
 	public Application applyLecture(Long lectureId, Long studentId) {
 		//강의 조회
 		Lecture lecture = lectureRepositoryJPA
-				                  .findById(lectureId)
-				                  .orElseThrow(() -> new RuntimeException("유효하지 않은 강의 ID 입니다."));
+				                  .findByIdWithLock(lectureId)
+				                  .orElseThrow(() -> new IllegalArgumentException("유효하지 않은 강의 ID 입니다."));
 
 		//현재 강의 수강인원 증가
 		Long current = lecture.getCurrent();
