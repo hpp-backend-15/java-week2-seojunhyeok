@@ -4,6 +4,8 @@ import hhplus.tdd.LectureApplication.dto.ApplicationDTO;
 import hhplus.tdd.LectureApplication.dto.LectureDTO;
 import hhplus.tdd.LectureApplication.entity.Lecture;
 import hhplus.tdd.LectureApplication.entity.Application;
+import hhplus.tdd.LectureApplication.exception.CapacityExceededException;
+import hhplus.tdd.LectureApplication.exception.DuplicateApplicationException;
 import hhplus.tdd.LectureApplication.repository.ApplicationRepositoryJPA;
 import hhplus.tdd.LectureApplication.repository.LectureRepositoryJPA;
 import lombok.RequiredArgsConstructor;
@@ -12,6 +14,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -27,11 +30,18 @@ public class LectureService {
 				                  .findByIdWithLock(lectureId)
 				                  .orElseThrow(() -> new IllegalArgumentException("유효하지 않은 강의 ID 입니다."));
 
+		//중복 신청 체크
+		boolean exists = applicationRepositoryJPA.findByStudentIdAndLectureId(studentId, lectureId)
+				                 .isPresent();
+		if (exists) {
+			throw new DuplicateApplicationException("이미 신청한 강의입니다.");
+		}
+
 		//현재 강의 수강인원 증가
 		Long current = lecture.getCurrent();
 
 		if (current >= lecture.getCapacity()) {
-			throw new IllegalStateException("정원을 초과할 수 없습니다.");
+			throw new CapacityExceededException("정원을 초과할 수 없습니다.");
 		}
 
 		lecture.setCurrent(current + 1);
