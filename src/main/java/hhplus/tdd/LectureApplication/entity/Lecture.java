@@ -28,13 +28,4 @@ public class Lecture {
 
 	@OneToMany(mappedBy = "lecture")
 	private List<Application> applications;
-
-	public Lecture(Long id, String title, String instructor, LocalDate date, Long capacity, Long current) {
-		this.id = id;
-		this.title = title;
-		this.instructor = instructor;
-		this.date = date;
-		this.capacity = capacity;
-		this.current = current;
-	}
 }
